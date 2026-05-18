@@ -793,6 +793,24 @@ local Library = {
         ResetOnSpawn = false
     })
 
+    Library.NotifHolder = Library:Create("Frame", {
+        Name = "\0",
+        Parent = Library.Holder.Instance,
+        AnchorPoint = Vector2.new(1, 1),
+        Position = UDim2.new(1, -12, 1, -12),
+        Size = UDim2.new(0, 260, 1, -24),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+    })
+    
+    Library:Create("UIListLayout", {
+        Name = "\0",
+        Parent = Library.NotifHolder.Instance,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        VerticalAlignment = Enum.VerticalAlignment.Bottom,
+        Padding = UDim.new(0, 8),
+    })
+
     do
         Library.CreateColorpicker = function(Self, Data)
             local Colorpicker = {
@@ -1950,6 +1968,141 @@ local Library = {
             return Keybind, Items 
         end
 
+        Library.Notify = function(Self, Params)
+            Params = Params or {}
+            local Title       = Params.Title       or Params.title       or "Notification"
+            local Description = Params.Description or Params.description or ""
+            local Duration    = Params.Duration    or Params.duration    or 3
+        
+            local HasDesc = Description ~= ""
+            local FrameHeight = HasDesc and 74 or 48
+        
+            local NotifFrame = Library:Create("Frame", {
+                Name = "\0",
+                Parent = Library.NotifHolder.Instance,
+                Size = UDim2.new(1, 0, 0, FrameHeight),
+                BackgroundColor3 = Library.Theme["Inline"],
+                BorderSizePixel = 0,
+                ClipsDescendants = false,
+            }):AddToTheme({BackgroundColor3 = "Inline"})
+        
+            Library:Create("UICorner", {
+                Name = "\0",
+                Parent = NotifFrame.Instance,
+                TopLeftRadius    = UDim.new(0, 10),
+                TopRightRadius   = UDim.new(0, 10),
+                BottomRightRadius = UDim.new(0, 10),
+                BottomLeftRadius  = UDim.new(0, 10),
+            })
+        
+            -- Left accent bar
+            local AccentBar = Library:Create("Frame", {
+                Name = "\0",
+                Parent = NotifFrame.Instance,
+                Size = UDim2.new(0, 4, 1, -6),
+                Position = UDim2.new(0, 0, 0, 3),
+                BackgroundColor3 = Library.Theme["Accent"],
+                BorderSizePixel = 0,
+            }):AddToTheme({BackgroundColor3 = "Accent"})
+        
+            Library:Create("UICorner", {
+                Name = "\0",
+                Parent = AccentBar.Instance,
+                TopLeftRadius    = UDim.new(0, 4),
+                TopRightRadius   = UDim.new(0, 4),
+                BottomRightRadius = UDim.new(0, 4),
+                BottomLeftRadius  = UDim.new(0, 4),
+            })
+        
+            -- Title
+            Library:Create("TextLabel", {
+                Name = "\0",
+                Parent = NotifFrame.Instance,
+                FontFace = Library.BoldFont,
+                TextSize = Library.FontSize + 1,
+                TextColor3 = Library.Theme["Text"],
+                Text = Title,
+                Position = UDim2.new(0, 16, 0, HasDesc and 10 or 17),
+                Size = UDim2.new(1, -24, 0, 18),
+                BackgroundTransparency = 1,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextTruncate = Enum.TextTruncate.AtEnd,
+                BorderSizePixel = 0,
+            }):AddToTheme({TextColor3 = "Text"})
+        
+            -- Description
+            if HasDesc then
+                Library:Create("TextLabel", {
+                    Name = "\0",
+                    Parent = NotifFrame.Instance,
+                    FontFace = Library.Font,
+                    TextSize = Library.FontSize,
+                    TextColor3 = Library.Theme["Inactive Text"],
+                    Text = Description,
+                    Position = UDim2.new(0, 16, 0, 32),
+                    Size = UDim2.new(1, -24, 0, 28),
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    BorderSizePixel = 0,
+                }):AddToTheme({TextColor3 = "Inactive Text"})
+            end
+        
+            -- Progress bar background
+            local ProgressBg = Library:Create("Frame", {
+                Name = "\0",
+                Parent = NotifFrame.Instance,
+                AnchorPoint = Vector2.new(0, 1),
+                Position = UDim2.new(0, 0, 1, 0),
+                Size = UDim2.new(1, 0, 0, 3),
+                BackgroundColor3 = Library.Theme["Element"],
+                BorderSizePixel = 0,
+            }):AddToTheme({BackgroundColor3 = "Element"})
+        
+            Library:Create("UICorner", {
+                Name = "\0",
+                Parent = ProgressBg.Instance,
+                TopLeftRadius    = UDim.new(0, 4),
+                TopRightRadius   = UDim.new(0, 4),
+                BottomRightRadius = UDim.new(0, 4),
+                BottomLeftRadius  = UDim.new(0, 4),
+            })
+        
+            -- Progress fill
+            local ProgressFill = Library:Create("Frame", {
+                Name = "\0",
+                Parent = ProgressBg.Instance,
+                Size = UDim2.new(1, 0, 1, 0),
+                BackgroundColor3 = Library.Theme["Accent"],
+                BorderSizePixel = 0,
+            }):AddToTheme({BackgroundColor3 = "Accent"})
+        
+            Library:Create("UICorner", {
+                Name = "\0",
+                Parent = ProgressFill.Instance,
+                TopLeftRadius    = UDim.new(0, 4),
+                TopRightRadius   = UDim.new(0, 4),
+                BottomRightRadius = UDim.new(0, 4),
+                BottomLeftRadius  = UDim.new(0, 4),
+            })
+        
+            NotifFrame:FadeDescendants(true, function()
+                ProgressFill:Tween(
+                    {Size = UDim2.new(0, 0, 1, 0)},
+                    TweenInfo.new(Duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                )
+            
+                Library:Thread(function()
+                    task.wait(Duration)
+                    NotifFrame:FadeDescendants(false, function()
+                        NotifFrame.Instance:Destroy()
+                    end)
+                end)
+            end)
+        
+            return NotifFrame
+        end
+
         Library.Watermark = function(Self, Params)
             Params = Params or { }
 
@@ -2161,6 +2314,39 @@ local Library = {
                     BorderSizePixel = 0,
                     BackgroundColor3 = Library.Theme["Section"]
                 }):AddToTheme({BackgroundColor3 = 'Section'})
+
+                Items["SearchBar"] = Library:Create("TextBox", {
+                    Name = "\0",
+                    FontFace = Library.Font,
+                    TextSize = Library.FontSize,
+                    Parent = Items["MainFrame"].Instance,
+                    PlaceholderText = "Search...",
+                    PlaceholderColor3 = Library.Theme["Inactive Text"],
+                    TextColor3 = Library.Theme["Text"],
+                    Text = "",
+                    BackgroundColor3 = Library.Theme["Element"],
+                    BorderSizePixel = 0,
+                    CursorPosition = -1,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Position = UDim2.new(0, 75, 0, 18),
+                    Size = UDim2.new(0, 150, 0, 24),
+                    ClipsDescendants = true,
+                }):AddToTheme({BackgroundColor3 = 'Element', TextColor3 = 'Text', PlaceholderColor3 = 'Inactive Text'})
+                
+                Library:Create("UICorner", {
+                    Name = "\0",
+                    Parent = Items["SearchBar"].Instance,
+                    TopLeftRadius = UDim.new(0, 6),
+                    TopRightRadius = UDim.new(0, 6),
+                    BottomRightRadius = UDim.new(0, 6),
+                    BottomLeftRadius = UDim.new(0, 6)
+                })
+                
+                Library:Create("UIPadding", {
+                    Name = "\0",
+                    Parent = Items["SearchBar"].Instance,
+                    PaddingLeft = UDim.new(0, 8)
+                })
                 
                 Items["Side"] = Library:Create("Frame", {
                     Name = "\0",
@@ -2366,6 +2552,63 @@ local Library = {
                 end)
 
                 Window.Items = Items
+
+                Library:Connect(Items["SearchBar"].Instance:GetPropertyChangedSignal("Text"), function()
+                    local Query = Items["SearchBar"].Instance.Text:lower()
+                    local FirstMatchPage, FirstMatchSubPage = nil, nil
+                
+                    for _, PageObj in Window.Pages do
+                        for _, SubPageObj in PageObj.Pages do
+                            local subPageHasMatch = false
+                            for _, Column in SubPageObj.ColumnsData do
+                                for _, SectionFrame in Column.Instance:GetChildren() do
+                                    if not SectionFrame:IsA("Frame") then continue end
+                                    for _, Background in SectionFrame:GetChildren() do
+                                        if not Background:IsA("Frame") then continue end
+                                        for _, Content in Background:GetChildren() do
+                                            if not Content:IsA("Frame") then continue end
+                                            if not Content:FindFirstChildWhichIsA("UIListLayout") then continue end
+                                            for _, Element in Content:GetChildren() do
+                                                if Element:IsA("UIListLayout") or Element:IsA("UIPadding") then continue end
+                                                if Query == "" then
+                                                    Element.Visible = true
+                                                else
+                                                    local matched = false
+                                                    for _, Desc in Element:GetDescendants() do
+                                                        if (Desc:IsA("TextLabel") or Desc:IsA("TextButton"))
+                                                            and Desc.Text and #Desc.Text > 0 then
+                                                            if Desc.Text:lower():find(Query, 1, true) then
+                                                                matched = true
+                                                                break
+                                                            end
+                                                        end
+                                                    end
+                                                    Element.Visible = matched
+                                                    if matched then subPageHasMatch = true end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                            if subPageHasMatch and not FirstMatchPage then
+                                FirstMatchPage  = PageObj
+                                FirstMatchSubPage = SubPageObj
+                            end
+                        end
+                    end
+                
+                    -- Navigate to the first subpage that has a hit
+                    if Query ~= "" and FirstMatchPage and FirstMatchSubPage then
+                        if Window.Current ~= FirstMatchPage then
+                            FirstMatchPage:Turn()
+                        end
+                        if FirstMatchPage.Current ~= FirstMatchSubPage then
+                            FirstMatchSubPage:Turn()
+                        end
+                    end
+                end)
+
             end
 
             local Debounce = false
@@ -3628,6 +3871,48 @@ local Library = {
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
 
+                if Params.SearchBarEnabled or Params.searchBarEnabled then
+                    Items["SearchInput"] = Library:Create("TextBox", {
+                        Name = "\0",
+                        FontFace = Library.Font,
+                        TextSize = Library.FontSize,
+                        Parent = Items["OptionHolder"].Instance,
+                        PlaceholderText = "Search...",
+                        PlaceholderColor3 = Library.Theme["Inactive Text"],
+                        TextColor3 = Library.Theme["Text"],
+                        Text = "",
+                        BackgroundColor3 = Library.Theme["Element"],
+                        BorderSizePixel = 0,
+                        CursorPosition = -1,
+                        TextXAlignment = Enum.TextXAlignment.Left,
+                        Size = UDim2.new(1, 0, 0, 24),
+                        ClipsDescendants = true,
+                        LayoutOrder = -1,
+                    }):AddToTheme({BackgroundColor3 = 'Element', TextColor3 = 'Text', PlaceholderColor3 = 'Inactive Text'})
+                
+                    Library:Create("UICorner", {
+                        Name = "\0",
+                        Parent = Items["SearchInput"].Instance,
+                        TopLeftRadius = UDim.new(0, 5),
+                        TopRightRadius = UDim.new(0, 5),
+                        BottomRightRadius = UDim.new(0, 5),
+                        BottomLeftRadius = UDim.new(0, 5)
+                    })
+                
+                    Library:Create("UIPadding", {
+                        Name = "\0",
+                        Parent = Items["SearchInput"].Instance,
+                        PaddingLeft = UDim.new(0, 8)
+                    })
+                
+                    Library:Connect(Items["SearchInput"].Instance:GetPropertyChangedSignal("Text"), function()
+                        local Query = Items["SearchInput"].Instance.Text:lower()
+                        for OptionName, OptionData in Dropdown.Options do
+                            OptionData.Button.Instance.Visible = Query == "" or OptionName:lower():find(Query, 1, true) ~= nil
+                        end
+                    end)
+                end
+
                 Dropdown.Items = Items 
             end
 
@@ -3848,6 +4133,12 @@ local Library = {
 
                     if Library.OpenFrames[Dropdown] then 
                         Library.OpenFrames[Dropdown] = nil
+                    end
+                end
+                if Items["SearchInput"] then
+                    Items["SearchInput"].Instance.Text = ""
+                    for _, OptionData in Dropdown.Options do
+                        OptionData.Button.Instance.Visible = true
                     end
                 end
 
@@ -4190,7 +4481,10 @@ local Library = {
                         Items = { },
                         Multi = false,
                         Callback = function(Value)
-                            ConfigSelected = Value 
+                            ConfigSelected = Value
+                            if Flags["AutoLoad"] and Value and Value ~= "" then
+                                writefile(AutoLoadFile, Value)
+                            end
                         end
                     })
     
@@ -4266,7 +4560,80 @@ local Library = {
                         Library.MenuKeybind = Flags["UIBind"].Key
                     end})
 
+                    do
+                        local queueteleport = queue_on_teleport or (syn and syn.queue_on_teleport) or (fluxus and fluxus.queue_on_teleport) or nil
+                        local AutoExecuteConn = nil
+                        local AutoExecuteTriggered = false
+                    
+                        ConfigsSection:Toggle({
+                            Name = "Auto Execute",
+                            Flag = "AutoExecute",
+                            Default = true,
+                            Callback = function(Value)
+                                if Value then
+                                    if not queueteleport then
+                                        Library:Notify({
+                                            Title = "Auto Execute",
+                                            Description = "Your executor does not support queue_on_teleport.",
+                                            Duration = 4
+                                        })
+                                        Library.SetFlags["AutoExecute"](false)
+                                        return
+                                    end
+                    
+                                    AutoExecuteConn = Players.LocalPlayer.OnTeleport:Connect(function(State)
+                                        if State == Enum.TeleportState.Started and not AutoExecuteTriggered then
+                                            AutoExecuteTriggered = true
+                                            queueteleport([[loadstring(game:HttpGet(""))()]])
+                                        end
+                                    end)
+                    
+                                    Library:Notify({
+                                        Title = "Auto Execute",
+                                        Description = "Script will re-execute on teleport.",
+                                        Duration = 3
+                                    })
+                                else
+                                    if AutoExecuteConn then
+                                        AutoExecuteConn:Disconnect()
+                                        AutoExecuteConn = nil
+                                        AutoExecuteTriggered = false
+                                    end
+                                end
+                            end
+                        })
+                    end
+
                     Library:GetConfigsList(ConfigsDropdown)
+
+                    local AutoLoadFile = ConfigsFolder .. "autoload.txt"
+
+                    ConfigsSection:Toggle({
+                        Name = "Auto Load",
+                        Flag = "AutoLoad",
+                        Default = true,
+                        Callback = function(Value)
+                            if not Value then
+                                SetFlags["AutoLoad"](true)
+                                return
+                            end
+                            local target = (type(ConfigSelected) == "string" and ConfigSelected ~= "" and ConfigSelected)
+                                or (type(ConfigsDropdown.Value) == "string" and ConfigsDropdown.Value ~= "" and ConfigsDropdown.Value)
+                            if target then
+                                writefile(AutoLoadFile, target)
+                            end
+                        end
+                    })
+        
+                    if isfile(AutoLoadFile) then
+                        local AutoName = readfile(AutoLoadFile)
+                        local AutoPath = ConfigsFolder .. AutoName .. ".json"
+                        if isfile(AutoPath) then
+                            Library:LoadConfig(readfile(AutoPath))
+                            ConfigsDropdown:Set(AutoName)
+                            ConfigSelected = AutoName
+                        end
+                    end
                 end
 
                 do
@@ -4349,6 +4716,7 @@ do -- Page one
         AimbotSection:Dropdown({
             Name = "Dropdown",
             Flag = "Dropdown",
+            SearchBarEnabled = true,
             Default = "Value2",
             Items = {"Value", "Value2", "Value3", "Value4"},
             Multi = false,
