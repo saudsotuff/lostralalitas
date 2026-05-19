@@ -4640,29 +4640,5 @@ local Library = {
     end
 end
 
-Watermark:AddIcon("rbxassetid://79077177539456")
-Watermark:AddText(LocalPlayer.Name)
-    
-local FrameTimer = tick()
-local FPS = 60
-local FrameCount = 0
-
-Watermark:AddIcon("rbxassetid://120120355802135")
-local FPSText = Watermark:AddText("FPS")
-
-Library:Connect(RunService.RenderStepped, function()
-    FrameCount += 1
-    if tick() - FrameTimer >= 1 then
-        FPS = FrameCount
-        FrameCount = 0
-        FrameTimer = tick()
-    end
-
-    FPSText.Instance.Text = "FPS: " .. FPS
-end)
-
-Window:Init()
-
 getgenv().Library = Library
 return Library 
-
