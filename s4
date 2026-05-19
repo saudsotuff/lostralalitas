@@ -2234,13 +2234,6 @@ local Library = {
             }
 
             local Items = { } do 
-                if IsMobile then 
-                    Library:Create("UIScale", {
-                        Parent = Items["MainFrame"],
-                        Scale = 0.7
-                    })
-                end
-
                 Items["MainFrame"] = Library:Create("Frame", {
                     Name = "\0",
                     Parent = Library.Holder.Instance,
@@ -2250,6 +2243,13 @@ local Library = {
                     BorderSizePixel = 0,
                     BackgroundColor3 = Library.Theme["Background"]
                 }):AddToTheme({BackgroundColor3 = 'Background'})
+
+                if IsMobile then 
+                    Library:Create("UIScale", {
+                        Parent = Library.Holder.Instance,
+                        Scale = 0.5
+                    })
+                end
                 
                 Items["MainFrame"]:MakeDraggable()
                 Items["MainFrame"]:MakeResizeable(Vector2.new(Items["MainFrame"].Instance.AbsoluteSize.X, Items["MainFrame"].Instance.AbsoluteSize.Y))
@@ -3288,7 +3288,26 @@ local Library = {
                     BorderSizePixel = 0,
                     BackgroundColor3 = Library.Theme["Liner"]
                 }):AddToTheme({BackgroundColor3 = 'Liner'})
-                Items["Liner"].Instance:SetAttribute("IsLiner", true)             
+                Items["Liner"].Instance:SetAttribute("IsLiner", true)           
+                
+                Items["SubElements"] = Library:Create("Frame", {
+                    Name = "\0",
+                    Parent = Items["Toggle"].Instance,
+                    AnchorPoint = Vector2.new(1, 0),
+                    BackgroundTransparency = 1,
+                    Position = UDim2.new(1, -28, 0, 0),
+                    Size = UDim2.new(0, 0, 1, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.X
+                })
+                
+                Library:Create("UIListLayout", {
+                    Name = "\0",
+                    Parent = Items["SubElements"].Instance,
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    Padding = UDim.new(0, 6),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
             
                 Toggle.Items = Items
             end
@@ -3384,6 +3403,151 @@ local Library = {
                 })
 
                 return NewKeybind
+            end
+
+            function Toggle:Settings(Size)
+                local Settings = { 
+                    IsOpen = false,
+                    Window = false,
+                    Items = { },
+                    IsSettings = nil
+                }
+
+                Settings.IsSettings = Settings
+
+                local SettingsItems = { } do
+                    SettingsItems["SettingsButton"] = Library:Create("ImageButton", {
+                        Name = "\0",
+                        Parent = Items["SubElements"].Instance,
+                        AutoButtonColor = false,
+                        Image = "rbxassetid://128889160605702",
+                        BackgroundTransparency = 1,
+                        Size = UDim2.new(0, 20, 0, 20),
+                        BorderSizePixel = 0
+                    })                    
+
+                    SettingsItems["SettingsWindow"] = Library:Create("TextButton", {
+                        Name = "\0",
+                        FontFace = Library.Font,
+                        TextSize = Library.FontSize,
+                        Parent = Library.UnusedHolder.Instance,
+                        TextColor3 = Color3.fromRGB(0, 0, 0),
+                        Text = "",
+                        Visible= false,
+                        AutoButtonColor = false,
+                        Position = UDim2.new(0, 1074, 0, 153),
+                        Size = UDim2.new(0, 328, 0, Size),
+                        BorderSizePixel = 0,
+                        BackgroundColor3 = Library.Theme["Background"]
+                    }):AddToTheme({BackgroundColor3 = 'Background'})
+                    
+                    Library:Create("UICorner", {
+                        Name = "\0",
+                        Parent = SettingsItems["SettingsWindow"].Instance,
+                        CornerRadius = UDim.new(0, 4)
+                    })
+                    
+                    SettingsItems["Content"] = Library:Create("ScrollingFrame", {
+                        Name = "\0",
+                        Parent = SettingsItems["SettingsWindow"].Instance,
+                        Active = true,
+                        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                        BorderSizePixel = 0,
+                        CanvasSize = UDim2.new(0, 0, 0, 0),
+                        ScrollBarImageColor3 = Library.Theme["Inactive Text"],
+                        MidImage = "rbxassetid://81680855285439",
+                        ScrollBarThickness = 2,
+                        Size = UDim2.new(1, -20, 1, -20),
+                        BackgroundTransparency = 1,
+                        Position = UDim2.new(0, 10, 0, 10),
+                        BottomImage = "rbxassetid://81680855285439",
+                        TopImage = "rbxassetid://81680855285439"
+                    }):AddToTheme({ScrollBarImageColor3 = 'Inactive Text'})
+                    
+                    Library:Create("UIListLayout", {
+                        Name = "\0",
+                        Parent = SettingsItems["Content"].Instance,
+                        Padding = UDim.new(0, 10),
+                        SortOrder = Enum.SortOrder.LayoutOrder
+                    })
+                    
+                    Library:Create("UIPadding", {
+                        Name = "\0",
+                        Parent = SettingsItems["Content"].Instance,
+                        PaddingRight = UDim.new(0, 12)
+                    })              
+                    
+                    Settings.Items = SettingsItems
+                end
+
+                local Debounce = false 
+
+                local SettingWindow = SettingsItems["SettingsWindow"].Instance
+                local SettingButton = SettingsItems["SettingsButton"].Instance
+                local RenderStepped
+
+                function Settings:SetOpen(Bool)
+                    if Debounce then 
+                        return 
+                    end
+    
+                    Settings.IsOpen = Bool
+    
+                    Debounce = true 
+                    
+                    if Settings.IsOpen then 
+                        SettingWindow.Position = UDim2.new(0, SettingButton.AbsolutePosition.X, 0, SettingButton.AbsolutePosition.Y + SettingButton.AbsoluteSize.Y + GuiInset)
+    
+                        SettingWindow.Parent = Library.Holder.Instance
+                        SettingWindow.Visible = true
+
+                        RenderStepped = RunService.RenderStepped:Connect(function()
+                            SettingsItems["SettingsWindow"]:Tween({Position = UDim2.new(0, SettingButton.AbsolutePosition.X, 0, SettingButton.AbsolutePosition.Y + SettingButton.AbsoluteSize.Y + 10 + GuiInset)})
+                        end)
+
+                        SettingsItems["SettingsWindow"]:FadeDescendants(true, function()
+                            Debounce = false
+                        end)
+    
+                        Library.OpenFrames[Settings] = Settings 
+                    else
+                        SettingsItems["SettingsWindow"]:Tween({Position = UDim2.new(0, SettingButton.AbsolutePosition.X, 0, SettingButton.AbsolutePosition.Y + SettingButton.AbsoluteSize.Y - 10 + GuiInset)})
+                        SettingsItems["SettingsWindow"]:FadeDescendants(false, function()
+                            SettingWindow.Parent = Library.UnusedHolder.Instance
+                            Debounce = false
+                        end)
+
+                        if Library.OpenFrames[Settings] then 
+                            Library.OpenFrames[Settings] = nil
+                        end
+
+                        for Index, Value in Library.OpenFrames do
+                            Value:SetOpen(false)
+                        end
+
+                        if RenderStepped then 
+                            RenderStepped:Disconnect()
+                            RenderStepped = nil
+                        end
+                    end
+    
+                    local Descendants = SettingWindow:GetDescendants()
+                    table.insert(Descendants, SettingWindow)
+    
+                    for Index, Value in Descendants do 
+                        if Value.ClassName:find("UI") then
+                            continue
+                        end
+    
+                        Value.ZIndex = Settings.IsOpen and 4 or 1
+                    end
+                end
+
+                SettingsItems["SettingsButton"]:Connect("MouseButton1Down", function()
+                    Settings:SetOpen(not Settings.IsOpen)
+                end)
+
+                return setmetatable(Settings, Library)
             end
 
             Items["Toggle"]:Connect("MouseButton1Down", function()
@@ -4639,6 +4803,194 @@ local Library = {
         end
     end
 end
+
+local Window = Library:Window({
+    Name = "samet ui",
+    TimeRemaining = "5000 days left"
+})
+
+local Watermark = Window:Watermark("faggotry watermark")
+
+local PageOne = Window:Page({
+    Name = "Page 1",
+    Icon = "rbxassetid://95441985438890"
+})
+
+local PageTwo = Window:Page({
+    Name = "Page 2",
+    Icon = "rbxassetid://95441985438890"
+})
+
+local PageThree = Window:Page({
+    Name = "Page 3",
+    Icon = "rbxassetid://95441985438890"
+})
+
+do -- Page one
+    local AimbotSubPage = PageOne:SubPage({Name = "aimbot"})
+    local WeaponSubPage = PageOne:SubPage({Name = "Weapon", OneColumn = true})
+    PageOne:SubPage({Name = "Weapon"})
+    PageOne:SubPage({Name = "Weapon", LastTab = true})
+
+    do -- Aimbot subpage
+        local AimbotSection = AimbotSubPage:Section({Name = "Aimbot", Side = 1}) -- Aimbot section
+        local DiddySection = AimbotSubPage:Section({Name = "Diddy", Side = 2}) -- Diddy section
+
+        AimbotSection:Toggle({
+            Name = "toggling",
+            Default = false,
+            Flag = "toggling",
+            Callback = function(Value)
+                print(Value)
+            end
+        })
+
+        AimbotSection:Button({
+            Name = "Button",
+            Callback = function()
+                print("Button")
+            end
+        })
+
+        AimbotSection:Slider({
+            Name = "Slider",
+            Decimals = 0.1,
+            Suffix = "%",
+            Flag = "Slider",
+            Min = 1,
+            Max = 100,
+            Callback = function(Value)
+                print(Value)
+            end
+        })
+
+        AimbotSection:Dropdown({
+            Name = "Dropdown",
+            Flag = "Dropdown",
+            SearchBarEnabled = true,
+            Default = "Value2",
+            Items = {"Value", "Value2", "Value3", "Value4"},
+            Multi = false,
+            Callback = function(Value)
+                print(Value)
+            end
+        })
+
+        AimbotSection:Label({Name = "Colorpicker"}):Colorpicker({Name = "colorpicker", Flag = "Colorpicker", Default = Color3.fromRGB(255, 255, 255), Callback = function(Value)
+                print(Value)
+            end
+        })
+
+        AimbotSection:Label({Name = "Keybind"}):Keybind({
+            Name = "Keybind",
+            Flag = "Keybind",
+            Default = Enum.KeyCode.E,
+            Mode = "Toggle",
+            Callback = function(Value)
+                print(Value)
+            end
+        })
+
+        AimbotSection:Textbox({
+            Name = "Textbox",
+            Placeholder = "...",
+            Finished = false,
+            Numeric = false,
+            Flag = "Textbox",
+            Callback = function(Value)
+                print(Value)
+            end
+        })
+    end
+
+    do -- Weapon subpage
+        local AimbotSection = WeaponSubPage:Section({Name = "Aimbot", Side = 1}) -- Aimbot section
+
+        do
+            local Toggle = AimbotSection:Toggle({
+                Name = "Toggle",
+                Flag = "Toggle",
+                Default = false,
+                Tooltip = "this a toggle lmfaıo",
+                Callback = function(Value)
+                    print(Value)
+                end
+            })
+
+            local ToggleSettings = Toggle:Settings(200)
+
+            ToggleSettings:Toggle({
+                Name = "aimbot",
+                Flag = "aimbot2",
+                Default = false,
+                Callback = function(Value)
+                    print(Value)
+                end
+            })
+
+            ToggleSettings:Button({
+                Name = "Button",
+                Callback = function()
+                    print("Button")
+                end
+            })
+
+            ToggleSettings:Slider({
+                Name = "Slider",
+                Flag = "Slider2",
+                Min = 1,
+                Max = 100,
+                Default = 50,
+                Suffix = "%",
+                Decimals = 1,
+                Callback = function(Value)
+                    print(Value)
+                end
+            })
+
+            ToggleSettings:Dropdown({
+                Name = "Dropdown",
+                Flag = "Dropdown2",
+                Default = "First",
+                Items = {"First", "Second", "Third", "Fourth", "Fifth", "Sixth"},
+                Callback = function(Value)
+                    print(Value)
+                end
+            })
+
+            ToggleSettings:Label({Name = "picker"}):Colorpicker({
+                Flag = "Colorpicker2",
+                Default = Color3.fromRGB(255, 255, 255),
+                Callback = function(Value)
+                    print(Value)
+                end
+            })
+        end
+    end
+end
+
+Watermark:AddIcon("rbxassetid://79077177539456")
+Watermark:AddText(LocalPlayer.Name)
+    
+local FrameTimer = tick()
+local FPS = 60
+local FrameCount = 0
+
+Watermark:AddIcon("rbxassetid://120120355802135")
+local FPSText = Watermark:AddText("FPS")
+
+Library:Connect(RunService.RenderStepped, function()
+    FrameCount += 1
+    if tick() - FrameTimer >= 1 then
+        FPS = FrameCount
+        FrameCount = 0
+        FrameTimer = tick()
+    end
+
+    FPSText.Instance.Text = "FPS: " .. FPS
+end)
+
+Window:Init()
 
 getgenv().Library = Library
 return Library 
