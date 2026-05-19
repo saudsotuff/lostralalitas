@@ -3144,7 +3144,7 @@ local Library = {
                 Library:Create("UIPadding", {
                     Name = "\0",
                     Parent = Items["Background"].Instance,
-                    PaddingBottom = UDim.new(0, 12)
+                    PaddingBottom = UDim.new(0, 8)
                 })
                 
                 local function RefreshDividers()
