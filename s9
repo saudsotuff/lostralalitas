@@ -3167,7 +3167,9 @@ local Library = {
                     end
                 end
                 
-                Items["Content"].Instance.ChildAdded:Connect(RefreshDividers)
+                Items["Content"].Instance.ChildAdded:Connect(function()
+                    task.defer(RefreshDividers)
+                end)
                 Items["Content"].Instance.ChildRemoved:Connect(RefreshDividers)
 
                 Section.Items = Items
