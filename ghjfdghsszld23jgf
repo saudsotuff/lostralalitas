@@ -5414,7 +5414,7 @@ local Library = {
         Library.Init = function(Self)
             local SettingsPage = Self:Page({Name = "Settings", Icon = "rbxassetid://101163724569815"})
             local GeneralSubPage = SettingsPage:SubPage({Name = "General", LastTab = true})
-            Library:InitSettings(Self, GeneralSubPage)
+            Library.InitSettings(Self, GeneralSubPage)
         end
     end
 end
