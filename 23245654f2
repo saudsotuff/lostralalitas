@@ -4913,20 +4913,12 @@ local Library = {
             end
 
             function Dropdown:Refresh(List)
-                local toRemove = {}
-                for _, Value in Dropdown.Options do
-                    table.insert(toRemove, Value.Name)
+                for Index, Value in Dropdown.Options do 
+                    Dropdown:Remove(Value.Name)
                 end
-                for _, Name in ipairs(toRemove) do
-                    Dropdown:Remove(Name)
-                end
-            
-                local previousValue = Dropdown.Value
-                for _, Value in List do
+
+                for Index, Value in List do 
                     Dropdown:Add(Value)
-                end
-                if type(previousValue) == "string" and previousValue ~= "" then
-                    Dropdown:Set(previousValue)
                 end
             end
 
@@ -5390,11 +5382,6 @@ local Library = {
                         if ConfigName and ConfigName ~= "" then
                             writefile(ConfigsFolder .. ConfigName .. ".json", Library:GetConfig())
                             Library:GetConfigsList(ConfigsDropdown)
-                            ConfigsDropdown:Set(ConfigName)
-                            ConfigSelected = ConfigName
-                            if Flags["AutoLoad"] then
-                                writefile(AutoLoadFile, ConfigName)
-                            end
                         end
                     end
                 })
@@ -5453,6 +5440,7 @@ local Library = {
 
                 Library:GetConfigsList(ConfigsDropdown)
 
+                local AutoLoadFile = ConfigsFolder .. "autoload.txt"
                 ConfigsSection:Toggle({
                     Name = "Auto Load",
                     Flag = "AutoLoad",
