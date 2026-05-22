@@ -5440,27 +5440,21 @@ local Library = {
 
                 Library:GetConfigsList(ConfigsDropdown)
 
-                local AutoLoadFile = ConfigsFolder .. "autoload.txt"
-
                 ConfigsSection:Toggle({
                     Name = "Auto Load",
                     Flag = "AutoLoad",
                     Default = true,
                     Callback = function(Value)
                         if not Value then
-                            if isfile(AutoLoadFile) then
-                                delfile(AutoLoadFile)
-                            end
+                            if isfile(AutoLoadFile) then delfile(AutoLoadFile) end
                             return
                         end
                         local target = (type(ConfigSelected) == "string" and ConfigSelected ~= "" and ConfigSelected)
                             or (type(ConfigsDropdown.Value) == "string" and ConfigsDropdown.Value ~= "" and ConfigsDropdown.Value)
-                        if target then
-                            writefile(AutoLoadFile, target)
-                        end
+                        if target then writefile(AutoLoadFile, target) end
                     end
                 })
-    
+
                 if isfile(AutoLoadFile) then
                     local AutoName = readfile(AutoLoadFile)
                     local AutoPath = ConfigsFolder .. AutoName .. ".json"
@@ -5488,10 +5482,10 @@ local Library = {
             return SubPage
         end
 
-        Library.Init = function(Self)
+        Library.InitSettings = function(Self)
             local SettingsPage = Self:Page({Name = "Settings", Icon = "rbxassetid://101163724569815"})
             local GeneralSubPage = SettingsPage:SubPage({Name = "General", LastTab = true})
-            Library:InitSettings(GeneralSubPage)
+            Library:InitSettings(Self, GeneralSubPage)
         end
     end
 end
