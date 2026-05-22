@@ -4536,6 +4536,7 @@ local Library = {
                 Default = Params.Default or Params.default or "",
                 Callback = Params.Callback or Params.callback or function() end,
                 Multi = Params.Multi or Params.multi or false,
+                MaxSize = Params.MaxSize or Params.maxSize or 200,
                 Tooltip = Params.Tooltip or Params.tooltip or "",
                 Window = Self.Window,
                 Page = Self.Page,
@@ -5482,10 +5483,10 @@ local Library = {
             return SubPage
         end
 
-        Library.InitSettings = function(Self)
+        Library.Init = function(Self)
             local SettingsPage = Self:Page({Name = "Settings", Icon = "rbxassetid://101163724569815"})
             local GeneralSubPage = SettingsPage:SubPage({Name = "General", LastTab = true})
-            Library:InitSettings(Self, GeneralSubPage)
+            Library.InitSettings(Self, GeneralSubPage)
         end
     end
 end
