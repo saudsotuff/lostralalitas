@@ -2912,7 +2912,6 @@ local Library = {
                     Name = "\0",
                     Parent = Items["MainFrame"].Instance,
                     BackgroundTransparency = 1,
-                    ClipsDescendants = true,
                     Position = UDim2.new(0, 0, 0, 50),
                     Size = UDim2.new(1, 0, 1, -50),
                     BorderSizePixel = 0
@@ -3304,7 +3303,7 @@ local Library = {
                     Visible = false,
                     Size = UDim2.new(1, 0, 1, 0),
                     BorderSizePixel = 0
-                })           
+                })               
 
                 Page.Items = Items
 
@@ -3353,22 +3352,18 @@ local Library = {
                     Old.Items["Icon"]:Tween({ImageColor3 = Library.Theme["Inactive Text"]})
                     Old.Items["Text"]:Tween({TextColor3 = Library.Theme["Inactive Text"]})
 
-                    Old.Items["Page"]:Tween({Position = UDim2.new(0, -30, 0, 0)})
                     Old.Items["Page"]:FadeDescendants(false, function()
                         Old.Items["Page"].Instance.Parent = Library.UnusedHolder.Instance
-                        Old.Items["Page"].Instance.Position = UDim2.new(0, 0, 0, 0)
                     end)
 
                     Old.Active = false
                 end
 
-                Items["Page"].Instance.Position = UDim2.new(0, 30, 0, 0)
                 Items["Page"].Instance.Parent = Page.Window.Items["Content"].Instance
                 Items["Page"].Instance.Visible = true
                 Items["Page"]:FadeDescendants(true, function()
                     Page.Debounce = false
                 end)
-                Items["Page"]:Tween({Position = UDim2.new(0, 0, 0, 0)})
 
                 Items["TabButton"]:Tween({BackgroundTransparency = 0})
                 Items["SubPages"].Instance.Visible = true
@@ -3436,10 +3431,20 @@ local Library = {
                     Size = UDim2.new(1, 0, 1, 0),
                     BorderSizePixel = 0
                 })
-
-                Items["PageScroller"] = Library:Create("ScrollingFrame", {
+                
+                Library:Create("UIListLayout", {
                     Name = "\0",
                     Parent = Items["Page"].Instance,
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    HorizontalFlex = Enum.UIFlexAlignment.Fill,
+                    Padding = UDim.new(0, 12),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+                
+                Items["LeftColumn"] = Library:Create("ScrollingFrame", {
+                    Name = "\0",
+                    Parent = Items["Page"].Instance,
+                    ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
                     ScrollBarThickness = 0,
@@ -3447,67 +3452,6 @@ local Library = {
                     Size = UDim2.new(1, 0, 1, 0),
                     BorderSizePixel = 0,
                     CanvasSize = UDim2.new(0, 0, 0, 0)
-                })
-
-                Items["FullColumn"] = Library:Create("Frame", {
-                    Name = "\0",
-                    Parent = Items["PageScroller"].Instance,
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 0, 0, 0),
-                    Size = UDim2.new(1, 0, 0, 0),
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    BorderSizePixel = 0
-                })
-                
-                Library:Create("UIPadding", {
-                    Name = "\0",
-                    Parent = Items["FullColumn"].Instance,
-                    PaddingTop = UDim.new(0, 12),
-                    PaddingLeft = UDim.new(0, 12),
-                    PaddingBottom = UDim.new(0, 0),
-                    PaddingRight = UDim.new(0, 12)
-                })
-                
-                Library:Create("UIListLayout", {
-                    Name = "\0",
-                    Parent = Items["FullColumn"].Instance,
-                    Padding = UDim.new(0, 12),
-                    SortOrder = Enum.SortOrder.LayoutOrder
-                })
-                
-                Page.ColumnsData[0] = Items["FullColumn"]
-                
-                Items["TwoColumnHolder"] = Library:Create("Frame", {
-                    Name = "\0",
-                    Parent = Items["PageScroller"].Instance,
-                    BackgroundTransparency = 1,
-                    Position = UDim2.new(0, 0, 0, 0),
-                    Size = UDim2.new(1, 0, 0, 0),
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    BorderSizePixel = 0
-                })
-                
-                Library:Create("UIListLayout", {
-                    Name = "\0",
-                    Parent = Items["TwoColumnHolder"].Instance,
-                    FillDirection = Enum.FillDirection.Horizontal,
-                    HorizontalFlex = Enum.UIFlexAlignment.Fill,
-                    Padding = UDim.new(0, 12),
-                    SortOrder = Enum.SortOrder.LayoutOrder
-                })
-                
-                Items["FullColumn"].Instance:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-                    local fullH = Items["FullColumn"].Instance.AbsoluteSize.Y
-                    Items["TwoColumnHolder"].Instance.Position = UDim2.new(0, 0, 0, fullH)
-                end)
-                
-                Items["LeftColumn"] = Library:Create("Frame", {
-                    Name = "\0",
-                    Parent = Items["TwoColumnHolder"].Instance,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 0),
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    BorderSizePixel = 0
                 })
                 
                 Library:Create("UIPadding", {
@@ -3529,13 +3473,17 @@ local Library = {
                 Page.ColumnsData[1] = Items["LeftColumn"]
 
                 if not Page.IsOneColumn then 
-                    Items["RightColumn"] = Library:Create("Frame", {
+                    Items["RightColumn"] = Library:Create("ScrollingFrame", {
                         Name = "\0",
-                        Parent = Items["TwoColumnHolder"].Instance,
+                        Parent = Items["Page"].Instance,
+                        ScrollBarImageColor3 = Color3.fromRGB(0, 0, 0),
+                        Active = true,
+                        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                        ScrollBarThickness = 0,
                         BackgroundTransparency = 1,
-                        Size = UDim2.new(1, 0, 0, 0),
-                        AutomaticSize = Enum.AutomaticSize.Y,
-                        BorderSizePixel = 0
+                        Size = UDim2.new(1, 0, 1, 0),
+                        BorderSizePixel = 0,
+                        CanvasSize = UDim2.new(0, 0, 0, 0)
                     })
                     
                     Library:Create("UIPadding", {
@@ -3664,12 +3612,9 @@ local Library = {
             }
 
             local Items = { } do 
-                local OneColumn = Params.OneColumn or Params.oneColumn or false
-                local SectionParent = (OneColumn and Section.Page.ColumnsData[0]) or Section.Page.ColumnsData[Section.Side]
-                
                 Items["Section"] = Library:Create("Frame", {
                     Name = "\0",
-                    Parent = SectionParent.Instance,
+                    Parent = Section.Page.ColumnsData[Section.Side].Instance,
                     BackgroundTransparency = 1,
                     Size = UDim2.new(1, 0, 0, 0),
                     BorderSizePixel = 0,
@@ -4722,18 +4667,7 @@ local Library = {
                     Library:Connect(Items["SearchInput"].Instance:GetPropertyChangedSignal("Text"), function()
                         local Query = Items["SearchInput"].Instance.Text:lower()
                         for OptionName, OptionData in Dropdown.Options do
-                            local Matched = Query == "" or OptionName:lower():find(Query, 1, true) ~= nil
-                            local Button = OptionData.Button.Instance
-                            local Check = OptionData.Check.Instance
-                    
-                            if Matched and not Button.Visible then
-                                Button.Size = UDim2.new(1, 0, 0, 20)
-                                Button.TextTransparency = 0
-                                Check.ImageTransparency = 0
-                                Button.Visible = true
-                            elseif not Matched and Button.Visible then
-                                Button.Visible = false
-                            end
+                            OptionData.Button.Instance.Visible = Query == "" or OptionName:lower():find(Query, 1, true) ~= nil
                         end
                     end)
                 end
@@ -4979,12 +4913,7 @@ local Library = {
                 if Items["SearchInput"] then
                     Items["SearchInput"].Instance.Text = ""
                     for _, OptionData in Dropdown.Options do
-                        local Button = OptionData.Button.Instance
-                        OptionData._searchToken = (OptionData._searchToken or 0) + 1
-                        Button.Visible = true
-                        Button.Size = UDim2.new(1, 0, 0, 20)
-                        Button.TextTransparency = 0
-                        OptionData.Check.Instance.ImageTransparency = 0
+                        OptionData.Button.Instance.Visible = true
                     end
                 end
 
@@ -5456,13 +5385,12 @@ local Library = {
                 })
 
                 if isfile(AutoLoadFile) then
-                    local AutoName = readfile(AutoLoadFile):gsub("[\r\n%s]", "")
+                    local AutoName = readfile(AutoLoadFile)
                     local AutoPath = ConfigsFolder .. AutoName .. ".json"
                     if isfile(AutoPath) then
+                        Library:LoadConfig(readfile(AutoPath))
                         ConfigsDropdown:Set(AutoName)
                         ConfigSelected = AutoName
-                        Library:LoadConfig(readfile(AutoPath))
-                        writefile(AutoLoadFile, AutoName)
                     end
                 end
             end
@@ -5486,10 +5414,11 @@ local Library = {
         Library.Init = function(Self)
             local SettingsPage = Self:Page({Name = "Settings", Icon = "rbxassetid://101163724569815"})
             local GeneralSubPage = SettingsPage:SubPage({Name = "General", LastTab = true})
-            Library.InitSettings(Self, GeneralSubPage)
+            Library:InitSettings(Self, GeneralSubPage)
         end
     end
 end
 
 getgenv().Library = Library
 return Library
+
