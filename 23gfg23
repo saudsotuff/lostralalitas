@@ -5440,21 +5440,27 @@ local Library = {
 
                 Library:GetConfigsList(ConfigsDropdown)
 
+                local AutoLoadFile = ConfigsFolder .. "autoload.txt"
+
                 ConfigsSection:Toggle({
                     Name = "Auto Load",
                     Flag = "AutoLoad",
                     Default = true,
                     Callback = function(Value)
                         if not Value then
-                            if isfile(AutoLoadFile) then delfile(AutoLoadFile) end
+                            if isfile(AutoLoadFile) then
+                                delfile(AutoLoadFile)
+                            end
                             return
                         end
                         local target = (type(ConfigSelected) == "string" and ConfigSelected ~= "" and ConfigSelected)
                             or (type(ConfigsDropdown.Value) == "string" and ConfigsDropdown.Value ~= "" and ConfigsDropdown.Value)
-                        if target then writefile(AutoLoadFile, target) end
+                        if target then
+                            writefile(AutoLoadFile, target)
+                        end
                     end
                 })
-
+    
                 if isfile(AutoLoadFile) then
                     local AutoName = readfile(AutoLoadFile)
                     local AutoPath = ConfigsFolder .. AutoName .. ".json"
