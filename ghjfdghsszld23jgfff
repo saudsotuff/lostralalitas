@@ -5362,9 +5362,7 @@ local Library = {
                     Callback = function(Value)
                         ConfigSelected = Value
                         if Flags["AutoLoad"] and Value and Value ~= "" then
-                            pcall(function()
-                                writefile(AutoLoadFile, Value)
-                            end)
+                            writefile(AutoLoadFile, Value)
                         end
                     end
                 })
@@ -5442,6 +5440,12 @@ local Library = {
 
                 Library:GetConfigsList(ConfigsDropdown)
 
+                if isfile(AutoLoadFile) then
+                    local name = readfile(AutoLoadFile)
+                    ConfigsDropdown:Set(name)
+                    ConfigSelected = name
+                end
+
                 ConfigsSection:Toggle({
                     Name = "Auto Load",
                     Flag = "AutoLoad",
@@ -5453,11 +5457,7 @@ local Library = {
                         end
                         local target = (type(ConfigSelected) == "string" and ConfigSelected ~= "" and ConfigSelected)
                             or (type(ConfigsDropdown.Value) == "string" and ConfigsDropdown.Value ~= "" and ConfigsDropdown.Value)
-                        if target then
-                            pcall(function()
-                                writefile(AutoLoadFile, target)
-                            end)
-                        end
+                        if target then writefile(AutoLoadFile, target) end
                     end
                 })
 
