@@ -4640,23 +4640,6 @@ local Library = {
                     BottomLeftRadius = UDim.new(0, 10)
                 })
                 
-                Items["OptionLiner"] = Library:Create("Frame", {
-                    Name = "\0",
-                    Parent = Items["OptionHolder"].Instance,
-                    Position = UDim2.new(0, 0, 0, 0),
-                    Size = UDim2.new(0, 4, 1, 0),
-                    BorderSizePixel = 0,
-                    ZIndex = 5,
-                    BackgroundColor3 = Library.Theme["Accent"]
-                }):AddToTheme({BackgroundColor3 = 'Accent'})
-                
-                Library:Create("UICorner", {
-                    Name = "\0",
-                    Parent = Items["OptionLiner"].Instance,
-                    TopLeftRadius = UDim.new(0, 10),
-                    BottomLeftRadius = UDim.new(0, 10),
-                })
-                
                 local SearchBarH = (Params.SearchBarEnabled or Params.searchBarEnabled) and 34 or 0
 
                 Items["OptionsScroll"] = Library:Create("ScrollingFrame", {
@@ -4979,6 +4962,7 @@ local Library = {
                     local FinalH = math.min(ContentH, MaxH)
                     OptionHolder.Size = UDim2.new(0, RealDropdown.AbsoluteSize.X / Scale, 0, FinalH)
                     OptionHolder.Parent = Library.Holder.Instance
+                    Items["OptionsScroll"].Instance.CanvasPosition = Vector2.new(0, 0)
                     Items["OptionHolder"]:Tween({Position = Library:PopupPosition(RealDropdown, OptionHolder, 10)})
                     
                     Items["OptionHolder"]:FadeDescendants(true, function()
