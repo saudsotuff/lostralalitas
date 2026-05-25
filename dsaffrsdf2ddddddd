@@ -3420,7 +3420,6 @@ local Library = {
 
             local Page = {
                 Name = Params.Name or Params.name or "Page",
-                IsOneColumn = Params.OneColumn or Params.onecolumn or false,
                 IsLastTab = Params.LastTab or Params.lasttab or false,
 
                 Window = Self.Window,
@@ -3466,6 +3465,7 @@ local Library = {
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
                 
+                -- Always create 2-column scrolls (default layout)
                 Items["LeftColumn"] = Library:Create("ScrollingFrame", {
                     Name = "\0",
                     Parent = Items["Page"].Instance,
@@ -3477,58 +3477,162 @@ local Library = {
                     BorderSizePixel = 0,
                     CanvasSize = UDim2.new(0, 0, 0, 0)
                 })
-                
+
                 Library:Create("UIPadding", {
                     Name = "\0",
                     Parent = Items["LeftColumn"].Instance,
                     PaddingTop = UDim.new(0, 12),
                     PaddingLeft = UDim.new(0, 12),
                     PaddingBottom = UDim.new(0, 12),
-                    PaddingRight = UDim.new(0, Page.IsOneColumn and 12 or 0)
+                    PaddingRight = UDim.new(0, 0)
                 })
-                
+
                 Library:Create("UIListLayout", {
                     Name = "\0",
                     Parent = Items["LeftColumn"].Instance,
                     Padding = UDim.new(0, 12),
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
-                
-                Page.ColumnsData[0] = Items["LeftColumn"]  -- OneColumn sections fall into left column
+
+                Items["RightColumn"] = Library:Create("ScrollingFrame", {
+                    Name = "\0",
+                    Parent = Items["Page"].Instance,
+                    Active = true,
+                    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                    ScrollBarThickness = 0,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BorderSizePixel = 0,
+                    CanvasSize = UDim2.new(0, 0, 0, 0)
+                })
+
+                Library:Create("UIPadding", {
+                    Name = "\0",
+                    Parent = Items["RightColumn"].Instance,
+                    PaddingTop = UDim.new(0, 12),
+                    PaddingRight = UDim.new(0, 12),
+                    PaddingBottom = UDim.new(0, 12)
+                })
+
+                Library:Create("UIListLayout", {
+                    Name = "\0",
+                    Parent = Items["RightColumn"].Instance,
+                    Padding = UDim.new(0, 12),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
                 Page.ColumnsData[1] = Items["LeftColumn"]
-                
-                if not Page.IsOneColumn then
-                    Items["RightColumn"] = Library:Create("ScrollingFrame", {
-                        Name = "\0",
-                        Parent = Items["Page"].Instance,
-                        Active = true,
-                        AutomaticCanvasSize = Enum.AutomaticSize.Y,
-                        ScrollBarThickness = 0,
-                        BackgroundTransparency = 1,
-                        Size = UDim2.new(1, 0, 1, 0),
-                        BorderSizePixel = 0,
-                        CanvasSize = UDim2.new(0, 0, 0, 0)
-                    })
-                
-                    Library:Create("UIPadding", {
-                        Name = "\0",
-                        Parent = Items["RightColumn"].Instance,
-                        PaddingTop = UDim.new(0, 12),
-                        PaddingRight = UDim.new(0, 12),
-                        PaddingBottom = UDim.new(0, 12)
-                    })
-                
-                    Library:Create("UIListLayout", {
-                        Name = "\0",
-                        Parent = Items["RightColumn"].Instance,
-                        Padding = UDim.new(0, 12),
-                        SortOrder = Enum.SortOrder.LayoutOrder
-                    })
-                
-                    Page.ColumnsData[2] = Items["RightColumn"]
+                Page.ColumnsData[2] = Items["RightColumn"]
+
+                -- Single-scroll mode (activated when any Section uses OneColumn = true)
+                Page.HasOneColumn = false
+                Page.SingleScrollOrder = 1
+
+                Items["SingleScroll"] = Library:Create("ScrollingFrame", {
+                    Name = "\0",
+                    Parent = Library.UnusedHolder.Instance, -- starts hidden, moved in when needed
+                    Active = true,
+                    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                    ScrollBarThickness = 0,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BorderSizePixel = 0,
+                    CanvasSize = UDim2.new(0, 0, 0, 0)
+                })
+
+                Library:Create("UIPadding", {
+                    Name = "\0",
+                    Parent = Items["SingleScroll"].Instance,
+                    PaddingTop = UDim.new(0, 12),
+                    PaddingLeft = UDim.new(0, 12),
+                    PaddingBottom = UDim.new(0, 12),
+                    PaddingRight = UDim.new(0, 12)
+                })
+
+                Library:Create("UIListLayout", {
+                    Name = "\0",
+                    Parent = Items["SingleScroll"].Instance,
+                    Padding = UDim.new(0, 12),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                -- Two-column container inside SingleScroll (holds Side=1 and Side=2 sections when mixed)
+                Items["TwoColContainer"] = Library:Create("Frame", {
+                    Name = "\0",
+                    Parent = Items["SingleScroll"].Instance,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 0),
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    LayoutOrder = 0
+                })
+
+                Library:Create("UIListLayout", {
+                    Name = "\0",
+                    Parent = Items["TwoColContainer"].Instance,
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    HorizontalFlex = Enum.UIFlexAlignment.Fill,
+                    Padding = UDim.new(0, 12),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                Items["LeftSub"] = Library:Create("Frame", {
+                    Name = "\0",
+                    Parent = Items["TwoColContainer"].Instance,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    BorderSizePixel = 0
+                })
+
+                Library:Create("UIListLayout", {
+                    Name = "\0",
+                    Parent = Items["LeftSub"].Instance,
+                    Padding = UDim.new(0, 12),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                Items["RightSub"] = Library:Create("Frame", {
+                    Name = "\0",
+                    Parent = Items["TwoColContainer"].Instance,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    BorderSizePixel = 0
+                })
+
+                Library:Create("UIListLayout", {
+                    Name = "\0",
+                    Parent = Items["RightSub"].Instance,
+                    Padding = UDim.new(0, 12),
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                function Page:ActivateSingleColumn()
+                    if Page.HasOneColumn then return end
+                    Page.HasOneColumn = true
+
+                    for _, child in ipairs(Items["LeftColumn"].Instance:GetChildren()) do
+                        if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+                            child.Parent = Items["LeftSub"].Instance
+                        end
+                    end
+
+                    for _, child in ipairs(Items["RightColumn"].Instance:GetChildren()) do
+                        if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+                            child.Parent = Items["RightSub"].Instance
+                        end
+                    end
+
+                    Items["LeftColumn"].Instance.Parent = Library.UnusedHolder.Instance
+                    Items["RightColumn"].Instance.Parent = Library.UnusedHolder.Instance
+                    Items["SingleScroll"].Instance.Parent = Items["Page"].Instance
+                    Page.ColumnsData[1] = Items["LeftSub"]
+                    Page.ColumnsData[2] = Items["RightSub"]
+                    Page.ColumnsData[0] = Items["SingleScroll"]
                 end
                 
-                -- Connector icon (keep exactly the same as before)
+
                 local Goal
                 if IsMobile then
                     local ConnectorParent = Page.Page.Items["Connector"].Instance
@@ -3630,14 +3734,21 @@ local Library = {
             local Section = {
                 Name = Params.Name or Params.name or "Section",
                 Side = Params.Side or Params.side or 1,
-
+                IsOneColumn = Params.OneColumn or Params.onecolumn or false,
+            
                 Window = Self.Window,
                 Page = Self,
                 Items = { },
             }
 
             local Items = { } do 
-                local SectionParent = Section.Page.ColumnsData[Section.Side] or Section.Page.ColumnsData[1]
+                local SectionParent
+                if Section.IsOneColumn then
+                    Section.Page:ActivateSingleColumn()
+                    SectionParent = Section.Page.Items["SingleScroll"]
+                else
+                    SectionParent = Section.Page.ColumnsData[Section.Side] or Section.Page.ColumnsData[1]
+                end
                 
                 Items["Section"] = Library:Create("Frame", {
                     Name = "\0",
@@ -3647,6 +3758,11 @@ local Library = {
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.Y
                 })
+                
+                if Section.IsOneColumn then
+                    Items["Section"].Instance.LayoutOrder = Section.Page.SingleScrollOrder
+                    Section.Page.SingleScrollOrder += 1
+                end
                 
                 Items["Text"] = Library:Create("TextLabel", {
                     Name = "\0",
