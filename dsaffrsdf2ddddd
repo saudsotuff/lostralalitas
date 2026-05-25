@@ -4659,7 +4659,7 @@ local Library = {
                 Library:Create("UIPadding", {
                     Name = "\0",
                     Parent = Items["OptionsScroll"].Instance,
-                    PaddingTop = UDim.new(0, 0),
+                    PaddingTop = UDim.new(0, (Params.SearchBarEnabled or Params.searchBarEnabled) and 0 or 10),
                     PaddingBottom = UDim.new(0, 10),
                     PaddingRight = UDim.new(0, 10),
                     PaddingLeft = UDim.new(0, 10)
