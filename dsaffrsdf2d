@@ -4665,13 +4665,13 @@ local Library = {
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
                     ScrollBarThickness = 3,
-                    ScrollBarImageColor3 = Library.Theme["Inactive Text"],
+                    ScrollBarImageColor3 = Library.Theme["Accent"],
                     BackgroundTransparency = 1,
                     Size = UDim2.new(1, 0, 1, -SearchBarH),
                     Position = UDim2.new(0, 0, 0, SearchBarH),
                     BorderSizePixel = 0,
                     CanvasSize = UDim2.new(0, 0, 0, 0)
-                }):AddToTheme({ScrollBarImageColor3 = 'Inactive Text'})
+                }):AddToTheme({ScrollBarImageColor3 = 'Accent'})
                 
                 Library:Create("UIPadding", {
                     Name = "\0",
