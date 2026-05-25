@@ -3524,16 +3524,16 @@ local Library = {
                 Page.ColumnsData[1] = Items["LeftColumn"]
                 Page.ColumnsData[2] = Items["RightColumn"]
 
-                -- Single-scroll mode (activated when any Section uses OneColumn = true)
                 Page.HasOneColumn = false
                 Page.SingleScrollOrder = 1
 
                 Items["SingleScroll"] = Library:Create("ScrollingFrame", {
                     Name = "\0",
-                    Parent = Library.UnusedHolder.Instance, -- starts hidden, moved in when needed
+                    Parent = Library.UnusedHolder.Instance,
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
                     ScrollBarThickness = 0,
+                    ScrollBarImageTransparency = 1,
                     BackgroundTransparency = 1,
                     Size = UDim2.new(1, 0, 1, 0),
                     BorderSizePixel = 0,
