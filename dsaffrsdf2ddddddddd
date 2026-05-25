@@ -3465,13 +3465,13 @@ local Library = {
                     SortOrder = Enum.SortOrder.LayoutOrder
                 })
                 
-                -- Always create 2-column scrolls (default layout)
                 Items["LeftColumn"] = Library:Create("ScrollingFrame", {
                     Name = "\0",
                     Parent = Items["Page"].Instance,
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
                     ScrollBarThickness = 0,
+                    ScrollBarImageTransparency = 1,
                     BackgroundTransparency = 1,
                     Size = UDim2.new(1, 0, 1, 0),
                     BorderSizePixel = 0,
@@ -3500,6 +3500,7 @@ local Library = {
                     Active = true,
                     AutomaticCanvasSize = Enum.AutomaticSize.Y,
                     ScrollBarThickness = 0,
+                    ScrollBarImageTransparency = 1,
                     BackgroundTransparency = 1,
                     Size = UDim2.new(1, 0, 1, 0),
                     BorderSizePixel = 0,
