@@ -4625,10 +4625,9 @@ local Library = {
                     TextColor3 = Color3.fromRGB(0, 0, 0),
                     Text = "",
                     AutoButtonColor = false,
-                    Size = UDim2.new(0, 250, 0, 130),  -- fixed height, will be set dynamically
+                    Size = UDim2.new(0, 250, 0, 130),
                     Position = UDim2.new(0, 1057, 0, 149),
                     BorderSizePixel = 0,
-                    -- NO AutomaticSize here
                     BackgroundColor3 = Library.Theme["Inline"]
                 }):AddToTheme({BackgroundColor3 = 'Inline'})
                 
@@ -4641,7 +4640,25 @@ local Library = {
                     BottomLeftRadius = UDim.new(0, 10)
                 })
                 
-                -- Inner scroll frame for the options list
+                Items["OptionLiner"] = Library:Create("Frame", {
+                    Name = "\0",
+                    Parent = Items["OptionHolder"].Instance,
+                    Position = UDim2.new(0, 0, 0, 0),
+                    Size = UDim2.new(0, 4, 1, 0),
+                    BorderSizePixel = 0,
+                    ZIndex = 5,
+                    BackgroundColor3 = Library.Theme["Accent"]
+                }):AddToTheme({BackgroundColor3 = 'Accent'})
+                
+                Library:Create("UICorner", {
+                    Name = "\0",
+                    Parent = Items["OptionLiner"].Instance,
+                    TopLeftRadius = UDim.new(0, 10),
+                    BottomLeftRadius = UDim.new(0, 10),
+                })
+                
+                local SearchBarH = (Params.SearchBarEnabled or Params.searchBarEnabled) and 34 or 0
+
                 Items["OptionsScroll"] = Library:Create("ScrollingFrame", {
                     Name = "\0",
                     Parent = Items["OptionHolder"].Instance,
@@ -4650,8 +4667,8 @@ local Library = {
                     ScrollBarThickness = 3,
                     ScrollBarImageColor3 = Library.Theme["Inactive Text"],
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 1, 0),
-                    Position = UDim2.new(0, 0, 0, 0),
+                    Size = UDim2.new(1, 0, 1, -SearchBarH),
+                    Position = UDim2.new(0, 0, 0, SearchBarH),
                     BorderSizePixel = 0,
                     CanvasSize = UDim2.new(0, 0, 0, 0)
                 }):AddToTheme({ScrollBarImageColor3 = 'Inactive Text'})
@@ -4677,7 +4694,7 @@ local Library = {
                         Name = "\0",
                         FontFace = Library.Font,
                         TextSize = Library.FontSize,
-                        Parent = Items["OptionsScroll"].Instance,
+                        Parent = Items["OptionHolder"].Instance,
                         PlaceholderText = "Search...",
                         PlaceholderColor3 = Library.Theme["Inactive Text"],
                         TextColor3 = Library.Theme["Text"],
@@ -4686,9 +4703,10 @@ local Library = {
                         BorderSizePixel = 0,
                         CursorPosition = -1,
                         TextXAlignment = Enum.TextXAlignment.Left,
-                        Size = UDim2.new(1, 0, 0, 24),
+                        Position = UDim2.new(0, 10, 0, 5),
+                        Size = UDim2.new(1, -20, 0, 24),
                         ClipsDescendants = true,
-                        LayoutOrder = -1,
+                        ZIndex = 5,
                     }):AddToTheme({BackgroundColor3 = 'Element', TextColor3 = 'Text', PlaceholderColor3 = 'Inactive Text'})
                 
                     Library:Create("UICorner", {
@@ -4708,11 +4726,11 @@ local Library = {
                 
                     Library:Connect(Items["SearchInput"].Instance:GetPropertyChangedSignal("Text"), function()
                         local Query = Items["SearchInput"].Instance.Text:lower()
+                        local VisibleCount = 0
                         for OptionName, OptionData in Dropdown.Options do
                             local Matched = Query == "" or OptionName:lower():find(Query, 1, true) ~= nil
                             local Button = OptionData.Button.Instance
                             local Check = OptionData.Check.Instance
-                    
                             if Matched and not Button.Visible then
                                 Button.Size = UDim2.new(1, 0, 0, 20)
                                 Button.TextTransparency = 0
@@ -4721,7 +4739,20 @@ local Library = {
                             elseif not Matched and Button.Visible then
                                 Button.Visible = false
                             end
+                            if Matched then
+                                VisibleCount += 1
+                            end
                         end
+                        local Scale = Library:GetScreenScale()
+                        local RealDropdown = Items["RealDropdown"].Instance
+                        local SBExtra = 34
+                        local ItemH = 25
+                        local PadH = 20
+                        local MaxVisible = 5
+                        local ContentH = VisibleCount * ItemH + PadH + SBExtra
+                        local MaxH = MaxVisible * ItemH + PadH + SBExtra
+                        local FinalH = math.max(math.min(ContentH, MaxH), SBExtra + PadH)
+                        Items["OptionHolder"].Instance.Size = UDim2.new(0, RealDropdown.AbsoluteSize.X / Scale, 0, FinalH)
                     end)
                 end
 
